@@ -1,8 +1,8 @@
 """
-Testing warm-up: pytest-mock's `mocker`, `monkeypatch`, and `parametrize`.
+Testing warm-up: solutions.
 
-The first four tests are worked examples. Read them, run them, then fill in
-the three exercises at the bottom.
+The first four tests are the worked examples from the `main` branch,
+unchanged. The three below the divider are the exercises, solved.
 """
 
 import pytest
@@ -77,36 +77,90 @@ def test_premium_trial_user(mocker):
     assert is_premium_user(1) is True
 
 
-# ================ Exercises ================
+# ================ Solutions ================
 
 
-# TODO Exercise 1: monkeypatch
-# Write a test for get_api_key that sets a custom API key in the environment
-# and verifies that it is the value returned.
 def test_custom_api_key(monkeypatch):
-    """Test a custom API key read from the environment."""
-    # monkeypatch.setenv(...)
-    pass  # Implement your solution here
+    """
+    Exercise 1: a custom API key read from the environment.
+
+    monkeypatch is the right tool because it restores the environment when the
+    test ends. Assigning to os.environ directly would leak the value into
+    every test that runs afterwards, and `test_env_default_key` above would
+    start passing or failing depending on the order tests happen to run in.
+    """
+    expected_key = "my_custom_api_key_2026"
+    monkeypatch.setenv("API_KEY", expected_key)
+
+    assert get_api_key() == expected_key
 
 
-# TODO Exercise 2: parametrized testing
-# Fill in the case table for is_premium_user. Cover: active premium, expired
-# premium, an active basic plan, and no subscription at all.
 @pytest.mark.parametrize(
     "user_data,expected",
     [
-        # Add your cases here, following this shape:
-        # ({"has_subscription": bool, "plan": str, "is_expired": bool}, expected),
+        (
+            {"has_subscription": True, "plan": "premium", "is_expired": False},
+            True,  # Active premium subscription
+        ),
+        (
+            {"has_subscription": True, "plan": "premium", "is_expired": True},
+            False,  # Expired premium subscription
+        ),
+        (
+            {"has_subscription": True, "plan": "basic", "is_expired": False},
+            False,  # Active basic plan
+        ),
+        (
+            {"has_subscription": False, "plan": None, "is_expired": False},
+            False,  # No subscription, and a null plan from the API
+        ),
+        (
+            {"has_subscription": True, "plan": "PREMIUM", "is_expired": False},
+            True,  # The comparison is case-insensitive
+        ),
     ],
 )
 def test_subscription_status(mocker, user_data, expected):
-    """Test the subscription rules across several scenarios."""
-    pass  # Implement your solution here
+    """
+    Exercise 2: the subscription rules across several scenarios.
+
+    The fourth case is the trap. `plan` is present and null, so
+    `user_data.get("plan", "")` returns None rather than the default, and
+    `.lower()` on it raises AttributeError. Note that the `has_subscription`
+    check does not save us: `plan_type` is computed before the `and` chain
+    runs, so there is nothing to short-circuit.
+    """
+    mocker.patch("premium_check.users.get_user_data", return_value=user_data)
+
+    assert is_premium_user(123) is expected
 
 
-# TODO Exercise 3: patching a failure
-# Test that is_premium_user degrades gracefully when the API gives us nothing
-# back. Patch get_user_data to simulate it.
 def test_api_connection_error(mocker):
-    """Test the premium check when the upstream API is unavailable."""
-    pass  # Implement your solution here
+    """
+    Exercise 3: the premium check when the upstream API is unavailable.
+
+    get_user_data already turns a non-200 response into None, so returning
+    None is how the outage reaches is_premium_user.
+    """
+    mocker.patch("premium_check.users.get_user_data", return_value=None)
+
+    assert is_premium_user(123) is False
+
+
+def test_api_raising_is_not_handled(mocker):
+    """
+    A connection error that raises is NOT handled, and this test documents it.
+
+    A test can pin down a limitation as well as a feature. If someone later
+    decides is_premium_user should swallow this, this test tells them they are
+    changing behaviour on purpose.
+    """
+    import requests
+
+    mocker.patch(
+        "premium_check.users.get_user_data",
+        side_effect=requests.exceptions.ConnectionError("API unreachable"),
+    )
+
+    with pytest.raises(requests.exceptions.ConnectionError):
+        is_premium_user(123)

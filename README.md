@@ -1,4 +1,7 @@
-# Premium Check: Testing Warm-Up
+# Premium Check: Testing Warm-Up (solutions)
+
+> You are on the `solution` branch. Run `git switch main` for the version
+> with the exercises left blank.
 
 A 20-minute in-class warm-up on testing code that talks to the outside world.
 
@@ -105,16 +108,7 @@ Mind the patch target: it is `premium_check.users.get_user_data`, the name as
 `is_premium_user` looks it up, not the module where it happens to be defined.
 Patch the wrong one and your test will pass while testing nothing.
 
-## Solutions
-
-The solutions live on the `solution` branch of this repo. Try the exercises
-first, then:
-
-```bash
-git switch solution
-```
-
-To get back to the exercises:
+## Going back
 
 ```bash
 git switch main
