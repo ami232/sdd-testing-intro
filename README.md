@@ -33,10 +33,20 @@ root_dir
 └─ README.md
 ```
 
+## Get the code
+
+This is a warm-up, so there is nothing to submit and no reason to fork.
+Clone `ami232/sdd-testing-intro` directly:
+
+```bash
+git clone https://github.com/ami232/sdd-testing-intro.git
+cd sdd-testing-intro
+```
+
 ## Setup
 
 Preferred: [uv](https://docs.astral.sh/uv/). Install uv once per machine (see
-uv's docs), then from inside the repo:
+uv's docs), then from inside your local clone:
 
 ```bash
 uv venv                              # create a local virtual environment (.venv)
@@ -107,8 +117,8 @@ Patch the wrong one and your test will pass while testing nothing.
 
 ## Solutions
 
-The solutions live on the `solution` branch of this repo. Try the exercises
-first, then:
+The solutions live on the `solution` branch of the clone you made above.
+Try the exercises first, then:
 
 ```bash
 git switch solution
