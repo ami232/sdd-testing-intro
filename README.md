@@ -36,10 +36,21 @@ root_dir
 └─ README.md
 ```
 
+## Get the code
+
+This is a warm-up, so there is nothing to submit and no reason to fork.
+Clone `ami232/sdd-testing-intro` directly:
+
+```bash
+git clone https://github.com/ami232/sdd-testing-intro.git
+cd sdd-testing-intro
+git switch solution
+```
+
 ## Setup
 
 Preferred: [uv](https://docs.astral.sh/uv/). Install uv once per machine (see
-uv's docs), then from inside the repo:
+uv's docs), then from inside your local clone:
 
 ```bash
 uv venv                              # create a local virtual environment (.venv)
